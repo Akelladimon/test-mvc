@@ -1,0 +1,39 @@
+version: '3'
+
+services:
+  php:
+    build: .
+    ports:
+      - "9000:9000"
+    volumes:
+      - .:/var/www/html
+    networks:
+      - my_mvc
+
+  mysql:
+    image: mysql:latest
+    container_name: mvc-mysql
+    command: --default-authentication-plugin=mysql_native_password
+    ports:
+      - 3306:3306
+    env_file:
+      - docker/mysql/.env
+    networks:
+      - my_mvc
+
+
+  nginx:
+    container_name: mvc-nginx
+    image: nginx:latest
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - .:/var/www/html
+    depends_on:
+      - php
+    networks:
+      - my_mvc
+
+networks:
+  my_mvc:
